@@ -1,0 +1,273 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>
+      Intro to MapView - Create a 2D map | Sample | ArcGIS Maps SDK for
+      JavaScript 4.26
+    </title>
+
+    <style>
+          html,
+          body,
+
+          #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 99%;
+            width: 100%;
+          }
+            #header {
+          height: 50px;
+          background-color: #789;
+          color: white;
+          text-align: center;
+          line-height: 50px;
+          font-size: 24px;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.26/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.26/"></script>
+
+    <script>
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/widgets/BasemapGallery",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Home",
+        "esri/widgets/Search",
+        "esri/widgets/Legend",
+        "esri/widgets/ScaleBar",
+        "esri/widgets/LayerList",
+        "esri/widgets/Expand",
+        "esri/widgets/Print",
+        "esri/widgets/Bookmarks"
+      ], (
+        Map,
+        MapView,
+        BasemapGallery,
+        FeatureLayer,
+        Home,
+        Search,
+        Legend,
+        ScaleBar,
+        LayerList,
+        Expand,
+        Print,
+        Bookmarks
+      ) => {
+        const map1 = new Map({
+          basemap: "topo"
+          //  layers: [flayer1, flayer2]
+        });
+
+        const view1 = new MapView({
+          container: "viewDiv",
+          map: map1,
+          zoom: 4,
+          center: [108, 31]
+        });
+
+        // const flayer2 = new FeatureLayer({
+        //   url: "https://www.geosceneonline.cn/server/rest/services/Hosted/中国各地GDP增长变化查询/FeatureServer"
+        // });
+
+        //添加搜索微件
+        let searchWidget = new Search({
+          view: view1
+        });
+        view1.ui.add(searchWidget, "top-right");
+        //添加底图库微件
+        const basemapGallery = new BasemapGallery({
+          view: view1
+        });
+        view1.ui.add(
+          new Expand({ content: basemapGallery, expanded: true }),
+          "top-right"
+        );
+        //添加主页微件
+        let homeWidget = new Home({
+          view: view1
+        });
+        view1.ui.add(homeWidget, "top-left");
+        //添加图例微件
+        const legend = new Legend({
+          view: view1
+        });
+        view1.ui.add(
+          new Expand({ content: legend, expanded: true }),
+          "top-right"
+        );
+        //添加比例尺微件
+        let scaleBar1 = new ScaleBar({
+          view: view1,
+          style: "reler",
+          unit: "metric"
+        });
+        view1.ui.add(scaleBar1, {
+          position: "bottom-left"
+        });
+        //添加图层列表微件
+        let layerList = new LayerList({
+          view: view1
+        });
+        view1.ui.add(
+          new Expand({ content: layerList, expanded: true }),
+          "top-right"
+        );
+        //添加打印微件
+        const print = new Print({
+          view: view1,
+          // specify your own print service
+          printServiceUrl:
+            "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task"
+        });
+        view1.ui.add(
+          new Expand({ content: print, expanded: true }),
+          "top-left"
+        );
+
+        //添加书签微件
+        const bookmarks = new Bookmarks({
+          view: view1,
+          editingEnabled: true,
+          visibleElements: {
+            time: false
+          }
+        });
+        const bkExpand = new Expand({
+          view: view1,
+          content: bookmarks,
+          expanded: true
+        });
+        view1.ui.add(bkExpand, "top-left");
+
+        //国内旅游人数弹出窗口
+        const template1 = {
+          title: "国内旅游人数: {地名}",
+          content: [
+            {
+              type: "fields",
+              fieldInfos: [
+                {
+                  fieldName: "地名",
+                  label: "地名"
+                },
+                {
+                  fieldName: "区划码",
+                  label: "区划码"
+                },
+                {
+                  fieldName: "省级",
+                  label: "省级"
+                },
+                {
+                  fieldName: "省级码",
+                  label: "省级码"
+                },
+                {
+                  fieldName: "f2019年",
+                  label: "2019年",
+                  format: {
+                    digitSeparator: true,
+                    places: 0
+                  }
+                },
+                {
+                  fieldName: "f2018年",
+                  label: "2018年",
+                  format: {
+                    digitSeparator: true,
+                    places: 0
+                  }
+                },
+                {
+                  fieldName: "f2017年",
+                  label: "2017年",
+                  format: {
+                    digitSeparator: true,
+                    places: 0
+                  }
+                },
+                {
+                  fieldName: "f2016年",
+                  label: "2016年",
+                  format: {
+                    digitSeparator: true,
+                    places: 0
+                  }
+                },
+                {
+                  fieldName: "f2015年",
+                  label: "2015年",
+                  format: {
+                    digitSeparator: true,
+                    places: 0
+                  }
+                }
+              ]
+            }
+          ]
+        };
+        const flayer1 = new FeatureLayer({
+          url: "https://www.geosceneonline.cn/server/rest/services/Hosted/国内旅游人数/FeatureServer",
+          popupTemplate: template1
+        });
+        map1.add(flayer1);
+
+        //各省会GDP数据弹出窗口
+        const template2 = {
+          title: "国内生产总值: {captial}",
+          content: [
+            {
+              type: "fields",
+              fieldInfos: [
+                {
+                  fieldName: "province",
+                  label: "Province"
+                },
+                {
+                  fieldName: "captial",
+                  label: "Captial"
+                },
+                {
+                  fieldName: "lon",
+                  label: "Longitude"
+                },
+                {
+                  fieldName: "lat",
+                  label: "Latitude"
+                },
+                {
+                  fieldName: "gdp2022",
+                  label: "GDP2022",
+                  format: {
+                    digitSeparator: true,
+                    places: 0
+                  }
+                }
+              ]
+            }
+          ]
+        };
+        const flayer2 = new FeatureLayer({
+          url: "https://www.geosceneonline.cn/server/rest/services/Hosted/中国各地GDP增长变化查询/FeatureServer",
+          popupTemplate: template2
+        });
+        map1.add(flayer2);
+      });
+    </script>
+  </head>
+  <body>
+    <div id="header">根据各省旅游人数和GDP分析区域经济发展</div>
+    <div id="viewDiv"></div>
+  </body>
+</html>
